@@ -15,7 +15,6 @@ AUTOGRADER CONTRACT (DO NOT MODIFY SIGNATURES):
   └─────────────────────────────────────────────────────────────────────┘
 """
 
-from xml.parsers.expat import model
 
 import torch
 import torch.nn as nn
