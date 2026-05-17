@@ -262,7 +262,7 @@ def evaluate_bleu(
                 ref = ref.replace(" .", ".").replace(" ,", ",").replace(" !", "!").replace(" ?", "?").replace(" '", "'")
                 references.append(ref.lower())  
 
-    bleu_score = list_bleu(hypotheses, [references]).score
+    bleu_score = list_bleu([references], hypotheses)
     return bleu_score
 
 
