@@ -23,7 +23,6 @@ import wandb
 from dataset import Multi30kDataset
 from lr_scheduler import NoamScheduler
 from typing import Optional
-from bleu import corpus_bleu
 from model import Transformer, make_src_mask, make_tgt_mask
 
 
@@ -226,6 +225,7 @@ def evaluate_bleu(
 
     """
     # TODO: Task 3 — loop test set, decode, compute and return BLEU
+    from bleu import corpus_bleu
     model.eval()
 
     hypotheses = []
