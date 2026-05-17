@@ -15,6 +15,8 @@ AUTOGRADER CONTRACT (DO NOT MODIFY SIGNATURES):
   └─────────────────────────────────────────────────────────────────────┘
 """
 
+from xml.parsers.expat import model
+
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
@@ -313,7 +315,9 @@ def save_checkpoint(
             'N': model.N,
             'num_heads': model.num_heads,
             'd_ff': model.d_ff,
-            'dropout': model.p
+            'dropout': model.p,
+            'de_vocab': model.de_vocab,
+            'en_vocab': model.en_vocab
         }
     }
     torch.save(checkpoint, path)
@@ -404,6 +408,9 @@ def run_training_experiment() -> None:
     test_ds.en_vocab_rev = train_ds.en_vocab_rev
     test_ds.de_vocab_rev = train_ds.de_vocab_rev
     test_ds.process_data()
+
+
+
     print("Loaded datasets and built vocabularies. \n")
 
 
@@ -441,6 +448,8 @@ def run_training_experiment() -> None:
     scheduler = NoamScheduler(optimizer, d_model=wandb.config.d_model, warmup_steps=4000)
     loss_fn = LabelSmoothingLoss(vocab_size=wandb.config.tgt_vocab_size, pad_idx=train_ds.en_vocab['<pad>'], smoothing=0.1)
 
+    model.de_vocab = train_ds.de_vocab
+    model.en_vocab = train_ds.en_vocab
 
     print(" Intialization done. Starting training loop... \n")
 

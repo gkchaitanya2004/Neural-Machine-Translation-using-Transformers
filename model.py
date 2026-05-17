@@ -19,11 +19,10 @@ import copy
 import os
 import gdown
 from typing import Optional, Tuple
-from dataset import Multi30kDataset
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import spacy
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -469,8 +468,8 @@ class Transformer(nn.Module):
 
     def __init__(
         self,
-        src_vocab_size: int = 19214,
-        tgt_vocab_size: int = 10837,
+        src_vocab_size: int = 10837,
+        tgt_vocab_size: int = 19214,
         d_model:   int   = 512,
         N:         int   = 6,
         num_heads: int   = 8,
@@ -490,11 +489,15 @@ class Transformer(nn.Module):
         self.encoder = Encoder(enc_layer, N)
         self.decoder = Decoder(dec_layer, N)
         self.out = nn.Linear(d_model, tgt_vocab_size)
+        self.de_vocab = None
+        self.en_vocab = None
 
         if checkpoint_path is not None:
             gdown.download(id="1DWpFswoHiBTy5NV9nX3kfxBqdwLzVymC", output=checkpoint_path, quiet=False)
             checkpoint = torch.load(checkpoint_path, map_location='cpu')
             self.load_state_dict(checkpoint['model_state_dict'])
+            self.de_vocab = checkpoint['de_vocab']
+            self.en_vocab = checkpoint['en_vocab']
 
         self.src_vocab_size = src_vocab_size
         self.tgt_vocab_size = tgt_vocab_size
@@ -589,4 +592,38 @@ class Transformer(nn.Module):
         Returns:
             The fully translated English string, detokenized and clean.
         """
-        raise NotImplementedError
+        from train import greedy_decode
+
+        de_nlp = spacy.load('de_core_news_sm')
+        src_tokens = [token.text for token in de_nlp(src_sentence)]
+        
+        indices = [self.de_vocab['<sos>']]
+
+        for token in src_tokens:
+            if token in self.de_vocab:
+                indices.append(self.de_vocab[token])
+            else:
+                indices.append(self.de_vocab['<unk>'])
+
+        indices.append(self.de_vocab['<eos>'])
+
+        src_tensor = torch.LongTensor(indices).unsqueeze(0)
+        src_mask = make_src_mask(src_tensor, pad_idx=1)
+        ys = greedy_decode(self,src_tensor, src_mask, max_len=50, 
+                          start_symbol=self.en_vocab['<sos>'],
+                          end_symbol=self.en_vocab['<eos>'])
+        
+        translated_tokens = []
+
+        for idx in ys.squeeze():
+            if idx == 2:
+                continue
+            elif idx == 3:
+                break
+            elif idx == 1:
+                continue
+            else:
+                translated_tokens.append(self.en_vocab_rev[idx.item()])
+
+        return ' '.join(translated_tokens)
+        
