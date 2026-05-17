@@ -24,7 +24,7 @@ import wandb
 from dataset import Multi30kDataset
 from lr_scheduler import NoamScheduler
 from typing import Optional
-from sacrebleu.metrics import BLEU
+from bleu import corpus_bleu
 from model import Transformer, make_src_mask, make_tgt_mask
 
 
@@ -263,8 +263,7 @@ def evaluate_bleu(
                 ref = ref.replace(" .", ".").replace(" ,", ",").replace(" !", "!").replace(" ?", "?").replace(" '", "'")
                 references.append(ref.lower())  
 
-    bleu = BLEU()
-    bleu_score = bleu.corpus_score(hypotheses, [references]).score
+    bleu_score = corpus_bleu(hypotheses, [references]).score
     return bleu_score
 
 
