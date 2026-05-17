@@ -599,7 +599,7 @@ class Transformer(nn.Module):
 
         de_nlp = German()
         src_tokens = [token.text for token in de_nlp(src_sentence)]
-        
+        device = next(self.parameters()).device
         indices = [self.de_vocab['<sos>']]
 
         for token in src_tokens:
@@ -612,16 +612,16 @@ class Transformer(nn.Module):
 
         self.eval()
         with torch.no_grad():
-            src_tensor = torch.LongTensor(indices).unsqueeze(0)
+            src_tensor = torch.LongTensor(indices).unsqueeze(0).to(device).to(device)
             src_mask = make_src_mask(src_tensor, pad_idx=self.de_vocab['<pad>'])
             memory = self.encode(src_tensor, src_mask)
-            ys = torch.LongTensor([[self.en_vocab['<sos>']]])
+            ys = torch.LongTensor([[self.en_vocab['<sos>']]]).to(device)
 
             for _ in range(50):
                 tgt_mask = make_tgt_mask(ys)
                 logits = self.decode(memory, src_mask, ys, tgt_mask)
                 next_word = logits.argmax(dim=-1)[:, -1].item()
-                ys = torch.cat([ys, torch.LongTensor([[next_word]])], dim=1)
+                ys = torch.cat([ys, torch.LongTensor([[next_word]],device=device)], dim=1)
 
                 if next_word == self.en_vocab['<eos>']:
                     break
