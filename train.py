@@ -421,7 +421,7 @@ def run_training_experiment() -> None:
         'd_ff': 2048,
         'dropout': 0.1,
         'batch_size': 64,
-        'num_epochs': 10
+        'num_epochs': 20
     })
 
 
