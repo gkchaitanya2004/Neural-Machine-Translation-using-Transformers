@@ -19,6 +19,7 @@ import copy
 import os
 import gdown
 from typing import Optional, Tuple
+from spacy.lang.de import German
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -593,7 +594,7 @@ class Transformer(nn.Module):
             The fully translated English string, detokenized and clean.
         """
 
-        de_nlp = spacy.load('de_core_news_sm')
+        de_nlp = German()
         src_tokens = [token.text for token in de_nlp(src_sentence)]
         
         indices = [self.de_vocab['<sos>']]
