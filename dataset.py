@@ -1,5 +1,7 @@
 from datasets import load_dataset
 import spacy
+from spacy.lang.en import English
+from spacy.lang.de import German
 
 class Multi30kDataset:
     def __init__(self, split='train'):
@@ -11,8 +13,8 @@ class Multi30kDataset:
         # https://huggingface.co/datasets/bentrevett/multi30k
         # TODO: Load dataset, load spacy tokenizers for de and en
         self.dataset = load_dataset("bentrevett/multi30k", split=split)
-        self.en_nlp = spacy.load("en_core_web_sm")
-        self.de_nlp = spacy.load("de_core_news_sm")
+        self.en_nlp =  English()
+        self.de_nlp = German()
 
 
     def build_vocab(self):

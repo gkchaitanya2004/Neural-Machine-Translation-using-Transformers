@@ -638,5 +638,7 @@ class Transformer(nn.Module):
             else:
                 translated_tokens.append(self.en_vocab_rev[idx.item()])
 
-        return ' '.join(translated_tokens)
-        
+        result = ' '.join(translated_tokens)
+        result = result.replace(" .", ".").replace(" ,", ",").replace(" !", "!").replace(" ?", "?").replace(" '", "'")   
+        result = result.lower()
+        return result
