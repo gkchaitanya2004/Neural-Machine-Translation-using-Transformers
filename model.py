@@ -494,7 +494,7 @@ class Transformer(nn.Module):
         self.en_vocab = None
 
         if checkpoint_path is not None:
-            gdown.download(id="1DWpFswoHiBTy5NV9nX3kfxBqdwLzVymC", output=checkpoint_path, quiet=False)
+            gdown.download(id="1bn5ZMt0aXIxFTxalKsKtDdGup3UoktuX", output=checkpoint_path, quiet=False)
             checkpoint = torch.load(checkpoint_path, map_location='cpu')
             self.load_state_dict(checkpoint['model_state_dict'])
             self.de_vocab = checkpoint['model_config']['de_vocab']
