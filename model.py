@@ -497,8 +497,11 @@ class Transformer(nn.Module):
             gdown.download(id="1DWpFswoHiBTy5NV9nX3kfxBqdwLzVymC", output=checkpoint_path, quiet=False)
             checkpoint = torch.load(checkpoint_path, map_location='cpu')
             self.load_state_dict(checkpoint['model_state_dict'])
-            self.de_vocab = checkpoint['de_vocab']
-            self.en_vocab = checkpoint['en_vocab']
+            self.de_vocab = checkpoint['model_config']['de_vocab']
+            self.en_vocab = checkpoint['model_config']['en_vocab']
+
+            self.de_vocab_rev = {v: k for k, v in self.de_vocab.items()}
+            self.en_vocab_rev = {v: k for k, v in self.en_vocab.items()}
 
         self.src_vocab_size = src_vocab_size
         self.tgt_vocab_size = tgt_vocab_size

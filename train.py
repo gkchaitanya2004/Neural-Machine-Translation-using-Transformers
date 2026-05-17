@@ -225,7 +225,7 @@ def evaluate_bleu(
 
     """
     # TODO: Task 3 — loop test set, decode, compute and return BLEU
-    from bleu import corpus_bleu
+    from bleu import list_bleu
     model.eval()
 
     hypotheses = []
@@ -262,7 +262,7 @@ def evaluate_bleu(
                 ref = ref.replace(" .", ".").replace(" ,", ",").replace(" !", "!").replace(" ?", "?").replace(" '", "'")
                 references.append(ref.lower())  
 
-    bleu_score = corpus_bleu(hypotheses, [references]).score
+    bleu_score = list_bleu(hypotheses, [references]).score
     return bleu_score
 
 
