@@ -598,7 +598,6 @@ class Transformer(nn.Module):
         """
 
         de_nlp = German()
-        print(list(self.de_vocab.items())[:5])
         src_tokens = [token.text for token in de_nlp(src_sentence)]
         device = next(self.parameters()).device
         indices = [self.de_vocab['<sos>']]
@@ -618,7 +617,7 @@ class Transformer(nn.Module):
             memory = self.encode(src_tensor, src_mask)
             ys = torch.LongTensor([[self.en_vocab['<sos>']]]).to(device)
 
-            for _ in range(50):
+            for _ in range(100):
                 tgt_mask = make_tgt_mask(ys)
                 logits = self.decode(memory, src_mask, ys, tgt_mask)
                 next_word = logits.argmax(dim=-1)[:, -1].item()
