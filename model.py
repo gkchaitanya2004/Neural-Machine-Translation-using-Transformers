@@ -19,6 +19,7 @@ import copy
 import os
 import gdown
 from typing import Optional, Tuple
+from dataset import Multi30kDataset
 
 import torch
 import torch.nn as nn
@@ -213,14 +214,11 @@ class PositionalEncoding(nn.Module):
         super().__init__()
         self.dropout = nn.Dropout(p=dropout)
         pos = torch.arange(max_len).unsqueeze(1)
-        i = torch.arange(d_model).unsqueeze(0)
-        angle_rates = 1 / torch.pow(10000, (2 * i) / d_model)
-        angle_rads = pos * angle_rates
-
         pe = torch.zeros(max_len, d_model)
-
-        pe[:, 0::2] = torch.sin(angle_rads[:, 0::2])
-        pe[:, 1::2] = torch.cos(angle_rads[:, 1::2])
+        div_term = torch.exp(torch.arange(0, d_model, 2) * (-math.log(10000.0) / d_model))
+        
+        pe[:, 0::2] = torch.sin(pos * div_term)
+        pe[:, 1::2] = torch.cos(pos * div_term)
 
         self.register_buffer('pe', pe.unsqueeze(0))
 
@@ -471,8 +469,8 @@ class Transformer(nn.Module):
 
     def __init__(
         self,
-        src_vocab_size: int,
-        tgt_vocab_size: int,
+        src_vocab_size: int = 19214,
+        tgt_vocab_size: int = 10837,
         d_model:   int   = 512,
         N:         int   = 6,
         num_heads: int   = 8,
