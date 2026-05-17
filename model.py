@@ -598,6 +598,7 @@ class Transformer(nn.Module):
         """
 
         de_nlp = German()
+        print(list(self.de_vocab.items())[:5])
         src_tokens = [token.text for token in de_nlp(src_sentence)]
         device = next(self.parameters()).device
         indices = [self.de_vocab['<sos>']]
