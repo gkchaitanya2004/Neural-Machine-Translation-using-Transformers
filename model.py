@@ -592,7 +592,6 @@ class Transformer(nn.Module):
         Returns:
             The fully translated English string, detokenized and clean.
         """
-        from train import greedy_decode
 
         de_nlp = spacy.load('de_core_news_sm')
         src_tokens = [token.text for token in de_nlp(src_sentence)]
@@ -607,12 +606,22 @@ class Transformer(nn.Module):
 
         indices.append(self.de_vocab['<eos>'])
 
-        src_tensor = torch.LongTensor(indices).unsqueeze(0)
-        src_mask = make_src_mask(src_tensor, pad_idx=1)
-        ys = greedy_decode(self,src_tensor, src_mask, max_len=50, 
-                          start_symbol=self.en_vocab['<sos>'],
-                          end_symbol=self.en_vocab['<eos>'])
-        
+        self.eval()
+        with torch.no_grad():
+            src_tensor = torch.LongTensor(indices).unsqueeze(0)
+            src_mask = make_src_mask(src_tensor, pad_idx=self.de_vocab['<pad>'])
+            memory = self.encode(src_tensor, src_mask)
+            ys = torch.LongTensor([[self.en_vocab['<sos>']]])
+
+            for _ in range(50):
+                tgt_mask = make_tgt_mask(ys)
+                logits = self.decode(memory, src_mask, ys, tgt_mask)
+                next_word = logits.argmax(dim=-1)[:, -1].item()
+                ys = torch.cat([ys, torch.LongTensor([[next_word]])], dim=1)
+
+                if next_word == self.en_vocab['<eos>']:
+                    break
+
         translated_tokens = []
 
         for idx in ys.squeeze():
