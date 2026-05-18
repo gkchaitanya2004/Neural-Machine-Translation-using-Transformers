@@ -190,7 +190,8 @@ class MultiHeadAttention(nn.Module):
         key_proj   = key_proj.view(batch_size, -1, self.num_heads, self.d_k).transpose(1, 2)
         value_proj = value_proj.view(batch_size, -1, self.num_heads, self.d_k).transpose(1, 2)
 
-        attn_out, _ = scaled_dot_product_attention(query_proj, key_proj, value_proj, mask, self.dropout)
+        attn_out, attn_w = scaled_dot_product_attention(query_proj, key_proj, value_proj, mask, self.dropout)
+        self.last_attn_weights = attn_w
         attn_out = attn_out.transpose(1,2).contiguous().view(batch_size, -1, self.d_model)
 
         return self.W_O(attn_out)
